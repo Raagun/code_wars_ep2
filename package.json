@@ -1,0 +1,25 @@
+{
+  "name": "run_js",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "jasmine JASMINE_CONFIG_PATH=spec/config/jasmine.json",
+    "test-srv": "json-server --watch spec/config/posts.json",
+    "watch": "npm-watch"
+  },
+  "watch": {
+    "test": {
+      "patterns": ["spec/*/*.js", "src/*.js"],
+      "quiet": true
+    }
+  },
+  "dependencies": {
+    "deasync": "^0.1.9",
+    "lodash": "^4.16.6"
+  },
+  "devDependencies": {
+    "jasmine": "^2.5.2",
+    "json-server": "^0.8.23",
+    "npm-watch": "^0.1.6",
+    "proxyquire": "^1.7.10"
+  }
+}
