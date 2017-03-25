@@ -46,22 +46,36 @@ function convertMapToHeated(map) {
     });
     return map;
 }
+function getMoves(row, col, map) {
+    var moves = [];
+    if (row > 0) {
+        moves.push(getElement(row - 1, col, map));
+    }
+    if (row < map.length - 1) {
+        moves.push(getElement(row + 1, col, map));
+    }
+    if (col > 0) {
+        moves.push(getElement(row, col - 1, map));
+    }
+    if (col < map[0].length - 1) {
+        moves.push(getElement(row, col + 1, map));
+    }
+    return moves;
+}
 function getNextMove(map, position) {
     var row = position.Row;
     var col = position.Col;
 
-    if(map[row][col] === "."){
+    if (map[row][col] === ".") {
         return getEatAction();
     }
 
     map = convertMapToHeated(map);
+    for(var i=0; i< Math.max(map.length, map.Row.length); i++){
+        map = heat(map);
+    }
     //calculate heat x5 for map
-    var moves = [
-        getElement(row, col + 1, map),
-        getElement(row, col - 1, map),
-        getElement(row + 1, col, map),
-        getElement(row - 1, col, map)
-    ];
+    var moves = getMoves(row, col, map);
     moves.sort(function (a, b) {
         return b.element.heat - a.element.heat;
     });
@@ -87,6 +101,41 @@ function getEatAction() {
 
 function getElement(row, col, map) {
     return {row: row, col: col, element: map[row][col]};
+}
+
+function heat(arr) {
+
+    var sumFn = function (a) {
+        return a.reduce(function (a, b) {
+            return a + b;
+        }, 0)
+    };
+
+    return arr.map(function (row, ri) {
+        return row.map(function (col, ci) {
+
+            var nd = [];
+            if (ri > 0) {
+                nd.push(arr[ri - 1][ci].heat);
+            }
+            if (ri < arr.length - 1) {
+                nd.push(arr[ri + 1][ci].heat);
+            }
+            if (ci > 0) {
+                nd.push(arr[ri][ci - 1].heat);
+            }
+            if (ci < arr[0].length - 1) {
+                nd.push(arr[ri][ci + 1].heat);
+            }
+
+            //col.heat = col.heat + sumFn(nd);
+
+            //return _.merge(col, {heat: col.heat + sumFn(nd)});
+            return {value: col.value, heat: col.heat + Math.max.apply(null, nd)};
+
+        });
+    });
+
 }
 
 module.exports = gameLogic;
