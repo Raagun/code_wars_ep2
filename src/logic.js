@@ -17,7 +17,7 @@ function doMoveForPlayer(map, playerData) {
             return createRateMove(map, ratPos);
         })
     };
-    // moves.Moves = checkDuplicates(moves.Moves, playerData);
+    moves.Moves = checkDuplicates(moves.Moves, playerData);
     return moves;
 }
 
@@ -64,12 +64,8 @@ function getNextMove(map, position) {
     }
 
     map = convertMapToHeated(map);
-    for (var i = 0; i < Math.max(map.length, map[0].length); i++) {
+    for (var i = 0; i < Math.min(map.length, map[0].length); i++) {
         map = heat(map);
-        // map = heat(map);
-        // map = heat(map);
-        // map = heat(map);
-        // map = heat(map);
     }
     var moves = getMoves(row, col, map);
     moves.sort(function (a, b) {
@@ -116,26 +112,6 @@ function getElement(row, col, map) {
     return {row: row, col: col, element: map[row][col]};
 }
 
-var previousMoves = [];
-
-function previousMovesAdjust(r, c) {
-	var r = previousMoves.find(function(e){ 
-		return e.row === r && e.col === c;
-	});
-
-	if(r) { 
-		return -1;
-	} else {
-		return 0;
-	}
-}
-
-function calculatePreviousMovesArray(r, c) {
-	if(previousMoves.length > 10) {
-		previousLength.splice(0, 1);
-	}
-}
-
 function heat(arr) {
 
     var sumFn = function (a) {
@@ -171,18 +147,21 @@ function heat(arr) {
 function checkDuplicates(moves, playerData) {
     var allMoves = [];
 
-
     return moves.map(function (move) {
+        if(move.Action === "Eat")
+            return move;
         var foundMove = allMoves.find(function (allMove) {
-            return move.Row === allMove.Row && move.Col === allMove.Col;
+            return move.Position.Row === allMove.Position.Row && move.Position.Col === allMove.Position.Col;
         });
-        if (foundMove) {
-            var rat = playerData.find(function (player) {
+        if (foundMove !== undefined) {
+            var rat = playerData.RatPositions.find(function (player) {
                 return player.RatId === foundMove.RatId;
             });
-            return getMoveAction(rat.Position.Row, rat.Position.Col);
+            var moveAction = getMoveAction(rat.Position.Row, rat.Position.Col);
+            moveAction.RatId = move.RatId;
+            return moveAction;
         }
-        allMoves.push(move.Position);
+        allMoves.push(move);
         return move;
     })
 }
