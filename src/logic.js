@@ -24,14 +24,7 @@ function createRateMove(map, ratInfo) {
     return move;
 }
 
-function getNextMove(map, position) {
-    var row = position.Row;
-    var col = position.Col;
-
-    if(map[row][col] === "."){
-        return getEatAction();
-    }
-
+function convertMapToHeated(map) {
     map = map.map(function (row) {
         return row.map(function (col) {
             if (col === "#")
@@ -51,7 +44,17 @@ function getNextMove(map, position) {
                 };
         })
     });
-    //convert map object with values
+    return map;
+}
+function getNextMove(map, position) {
+    var row = position.Row;
+    var col = position.Col;
+
+    if(map[row][col] === "."){
+        return getEatAction();
+    }
+
+    map = convertMapToHeated(map);
     //calculate heat x5 for map
     var moves = [
         getElement(row, col + 1, map),
