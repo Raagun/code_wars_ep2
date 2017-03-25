@@ -20,6 +20,7 @@ function doMoveForPlayer(map, playerData) {
 
 function createRateMove(map, ratInfo) {
     var move = getNextMove(map, ratInfo.Position);
+	calculatePreviousMovesArray(ratInfo.Position.Row, ratInfo.Position.Col);
     move.RatId = ratInfo.RatId;
     return move;
 }
@@ -103,6 +104,26 @@ function getElement(row, col, map) {
     return {row: row, col: col, element: map[row][col]};
 }
 
+var previousMoves = [];
+
+function previousMovesAdjust(r, c) {
+	var r = previousMoves.find(function(e){ 
+		return e.row === r && e.col === c;
+	});
+
+	if(r) { 
+		return -1;
+	} else {
+		return 0;
+	}
+}
+
+function calculatePreviousMovesArray(r, c) {
+	if(previousMoves.length > 10) {
+		previousLength.splice(0, 1);
+	}
+}
+
 function heat(arr) {
 
     var sumFn = function (a) {
@@ -131,7 +152,10 @@ function heat(arr) {
             //col.heat = col.heat + sumFn(nd);
 
             //return _.merge(col, {heat: col.heat + sumFn(nd)});
-            return {value: col.value, heat: col.heat + Math.max.apply(null, nd)};
+
+			var previousMovesAdjust = getPreviousMovesAdjust(row, col);
+
+            return {value: col.value, heat: col.heat + Math.max.apply(null, nd) + previousMovesAdjust};
 
         });
     });
