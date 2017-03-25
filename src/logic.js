@@ -17,7 +17,7 @@ function doMoveForPlayer(map, playerData) {
             return createRateMove(map, ratPos);
         })
     };
-    moves.Moves = checkDuplicates(moves.Moves, playerData);
+    // moves.Moves = checkDuplicates(moves.Moves, playerData);
     return moves;
 }
 
@@ -30,19 +30,14 @@ function createRateMove(map, ratInfo) {
 function convertMapToHeated(map) {
     map = map.map(function (row) {
         return row.map(function (col) {
-            if (col === "0")
-                return {
-                    heat: -100,
-                    value: col
-                };
             if (col === "#")
                 return {
-                    heat: -10000,
+                    heat: -1000,
                     value: col
                 };
             if (col === ".")
                 return {
-                    heat: 30,
+                    heat: 10,
                     value: col
                 };
             if (col === " ")
@@ -64,15 +59,16 @@ function getNextMove(map, position) {
     }
 
     map = convertMapToHeated(map);
-    for (var i = 0; i < Math.min(map.length, map[0].length); i++) {
-        map = heat(map);
+    var iterationCount = Math.min(map.length, map[0].length);
+    for (var i = 0; i < iterationCount; i++) {
+        map = heat(map, Math.pow((iterationCount - i)/iterationCount, 2));
     }
     var moves = getMoves(row, col, map);
     moves.sort(function (a, b) {
         return b.element.heat - a.element.heat;
     });
     var validMove = moves[0];
-    console.log(moves, validMove);
+    // console.log(moves, validMove);
     return getMoveAction(validMove.row, validMove.col);
 }
 
@@ -112,7 +108,7 @@ function getElement(row, col, map) {
     return {row: row, col: col, element: map[row][col]};
 }
 
-function heat(arr) {
+function heat(arr, intensity) {
 
     var sumFn = function (a) {
         return a.reduce(function (a, b) {
@@ -137,7 +133,7 @@ function heat(arr) {
                 nd.push(arr[ri][ci + 1].heat);
             }
 
-            return {value: col.value, heat: col.heat + Math.max.apply(null, nd)};
+            return {value: col.value, heat: col.heat + intensity * Math.max.apply(null, nd)};
 
         });
     });
@@ -148,8 +144,10 @@ function checkDuplicates(moves, playerData) {
     var allMoves = [];
 
     return moves.map(function (move) {
-        if(move.Action === "Eat")
+        if(move.Action === "Eat") {
+            console.log(move);
             return move;
+        }
         var foundMove = allMoves.find(function (allMove) {
             return move.Position.Row === allMove.Position.Row && move.Position.Col === allMove.Position.Col;
         });
@@ -159,8 +157,10 @@ function checkDuplicates(moves, playerData) {
             });
             var moveAction = getMoveAction(rat.Position.Row, rat.Position.Col);
             moveAction.RatId = move.RatId;
+            console.log(moveAction);
             return moveAction;
         }
+        console.log(move);
         allMoves.push(move);
         return move;
     })
