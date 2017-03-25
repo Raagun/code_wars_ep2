@@ -8,10 +8,6 @@ function convert(map, player) {
     var updatedMap = map.Rows.map(function (row) {
         return row.split("");
     });
-    // player.RatPositions.forEach(function (ratPos) {
-    //     if(updatedMap[ratPos.Position.Row][ratPos.Position.Col] !== ".")
-    //         updatedMap[ratPos.Position.Row][ratPos.Position.Col] = "0";
-    // });
     return updatedMap;
 }
 
@@ -27,7 +23,6 @@ function doMoveForPlayer(map, playerData) {
 
 function createRateMove(map, ratInfo) {
     var move = getNextMove(map, ratInfo.Position);
-	calculatePreviousMovesArray(ratInfo.Position.Row, ratInfo.Position.Col);
     move.RatId = ratInfo.RatId;
     return move;
 }
@@ -47,7 +42,7 @@ function convertMapToHeated(map) {
                 };
             if (col === ".")
                 return {
-                    heat: 1000,
+                    heat: 30,
                     value: col
                 };
             if (col === " ")
@@ -69,13 +64,13 @@ function getNextMove(map, position) {
     }
 
     map = convertMapToHeated(map);
-    // for (var i = 0; i < Math.max(map.length, map[0].length); i++) {
+    for (var i = 0; i < Math.max(map.length, map[0].length); i++) {
         map = heat(map);
-        map = heat(map);
-        map = heat(map);
-        map = heat(map);
-        map = heat(map);
-    // }
+        // map = heat(map);
+        // map = heat(map);
+        // map = heat(map);
+        // map = heat(map);
+    }
     var moves = getMoves(row, col, map);
     moves.sort(function (a, b) {
         return b.element.heat - a.element.heat;
@@ -166,13 +161,7 @@ function heat(arr) {
                 nd.push(arr[ri][ci + 1].heat);
             }
 
-            //col.heat = col.heat + sumFn(nd);
-
-            //return _.merge(col, {heat: col.heat + sumFn(nd)});
-
-			var previousMovesAdjustValue = previousMovesAdjust(row, col);
-
-            return {value: col.value, heat: col.heat + Math.max.apply(null, nd) + previousMovesAdjustValue};
+            return {value: col.value, heat: col.heat + Math.max.apply(null, nd)};
 
         });
     });
