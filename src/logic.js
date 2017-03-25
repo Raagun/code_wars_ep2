@@ -27,6 +27,11 @@ function createRateMove(map, ratInfo) {
 function getNextMove(map, position) {
     var row = position.Row;
     var col = position.Col;
+
+    if(map[row][col] === "."){
+        return getEatAction();
+    }
+
     map = map.map(function (row) {
         return row.map(function (col) {
             if (col === "#")
@@ -69,6 +74,11 @@ function getMoveAction(row, col) {
             Row: row,
             Col: col
         }
+    }
+}
+function getEatAction() {
+    return {
+        Action: "Eat"
     }
 }
 
