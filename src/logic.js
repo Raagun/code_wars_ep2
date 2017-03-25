@@ -27,15 +27,18 @@ function createRateMove(map, ratInfo) {
 function getNextMove(map, position) {
     var row = position.Row;
     var col = position.Col;
+    //convert map object with values
+    //calculate heat x5 for map
     var moves = [
         getElement(row, col + 1, map),
         getElement(row, col - 1, map),
         getElement(row + 1, col, map),
         getElement(row - 1, col, map)
     ];
-    var validMove = moves.find(function (move) {
-        return move.element !== "#";
+    moves.sort(function (a, b) {
+        return b.heat - a.heat;
     });
+    var validMove = moves[0];
     return getMoveAction(validMove.row, validMove.col);
 }
 
