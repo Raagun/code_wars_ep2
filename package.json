@@ -19,7 +19,7 @@
     "body-parser": "^1.17.1",
     "deasync": "^0.1.9",
     "express": "^4.15.2",
-    "lodash": "^4.16.6",
+    "lodash": "^4.17.4",
     "string_decoder": "^0.10.31"
   },
   "devDependencies": {
