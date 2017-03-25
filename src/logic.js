@@ -1,21 +1,28 @@
 function gameLogic(input) {
 
-    var map = convert(input.Map);
+    var map = convert(input.Map, input.Players[input.YourIndex]);
     return doMoveForPlayer(map, input.Players[input.YourIndex]);
 
 }
-function convert(map) {
-    return map.Rows.map(function (row) {
+function convert(map, player) {
+    var updatedMap = map.Rows.map(function (row) {
         return row.split("");
     });
+    // player.RatPositions.forEach(function (ratPos) {
+    //     if(updatedMap[ratPos.Position.Row][ratPos.Position.Col] !== ".")
+    //         updatedMap[ratPos.Position.Row][ratPos.Position.Col] = "0";
+    // });
+    return updatedMap;
 }
 
 function doMoveForPlayer(map, playerData) {
-    return {
+    var moves = {
         Moves: playerData.RatPositions.map(function (ratPos) {
             return createRateMove(map, ratPos);
         })
     };
+    // moves.Moves = checkDuplicates(moves.Moves, playerData);
+    return moves;
 }
 
 function createRateMove(map, ratInfo) {
@@ -28,14 +35,19 @@ function createRateMove(map, ratInfo) {
 function convertMapToHeated(map) {
     map = map.map(function (row) {
         return row.map(function (col) {
+            if (col === "0")
+                return {
+                    heat: -100,
+                    value: col
+                };
             if (col === "#")
                 return {
-                    heat: -1000,
+                    heat: -10000,
                     value: col
                 };
             if (col === ".")
                 return {
-                    heat: 10,
+                    heat: 1000,
                     value: col
                 };
             if (col === " ")
@@ -47,6 +59,32 @@ function convertMapToHeated(map) {
     });
     return map;
 }
+
+function getNextMove(map, position) {
+    var row = position.Row;
+    var col = position.Col;
+
+    if (map[row][col] === ".") {
+        return getEatAction();
+    }
+
+    map = convertMapToHeated(map);
+    // for (var i = 0; i < Math.max(map.length, map[0].length); i++) {
+        map = heat(map);
+        map = heat(map);
+        map = heat(map);
+        map = heat(map);
+        map = heat(map);
+    // }
+    var moves = getMoves(row, col, map);
+    moves.sort(function (a, b) {
+        return b.element.heat - a.element.heat;
+    });
+    var validMove = moves[0];
+    console.log(moves, validMove);
+    return getMoveAction(validMove.row, validMove.col);
+}
+
 function getMoves(row, col, map) {
     var moves = [];
     if (row > 0) {
@@ -62,27 +100,6 @@ function getMoves(row, col, map) {
         moves.push(getElement(row, col + 1, map));
     }
     return moves;
-}
-function getNextMove(map, position) {
-    var row = position.Row;
-    var col = position.Col;
-
-    if (map[row][col] === ".") {
-        return getEatAction();
-    }
-
-    map = convertMapToHeated(map);
-    for(var i=0; i< Math.max(map.length, map.Row.length); i++){
-        map = heat(map);
-    }
-    //calculate heat x5 for map
-    var moves = getMoves(row, col, map);
-    moves.sort(function (a, b) {
-        return b.element.heat - a.element.heat;
-    });
-    var validMove = moves[0];
-    console.log(moves, validMove);
-    return getMoveAction(validMove.row, validMove.col);
 }
 
 function getMoveAction(row, col) {
@@ -153,13 +170,32 @@ function heat(arr) {
 
             //return _.merge(col, {heat: col.heat + sumFn(nd)});
 
-			var previousMovesAdjust = getPreviousMovesAdjust(row, col);
+			var previousMovesAdjustValue = previousMovesAdjust(row, col);
 
-            return {value: col.value, heat: col.heat + Math.max.apply(null, nd) + previousMovesAdjust};
+            return {value: col.value, heat: col.heat + Math.max.apply(null, nd) + previousMovesAdjustValue};
 
         });
     });
 
+}
+
+function checkDuplicates(moves, playerData) {
+    var allMoves = [];
+
+
+    return moves.map(function (move) {
+        var foundMove = allMoves.find(function (allMove) {
+            return move.Row === allMove.Row && move.Col === allMove.Col;
+        });
+        if (foundMove) {
+            var rat = playerData.find(function (player) {
+                return player.RatId === foundMove.RatId;
+            });
+            return getMoveAction(rat.Position.Row, rat.Position.Col);
+        }
+        allMoves.push(move.Position);
+        return move;
+    })
 }
 
 module.exports = gameLogic;
