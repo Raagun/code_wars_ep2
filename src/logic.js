@@ -1,7 +1,7 @@
 function gameLogic(input) {
 
     var map = convert(input.Map);
-    return doMoveForPlayer(map, input.EnPlayerState[input.YourIndex]);
+    return doMoveForPlayer(map, input.Players[input.YourIndex]);
 
 }
 function convert(map) {

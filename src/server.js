@@ -19,12 +19,12 @@ var Server = function (workerFn) {
 	    });
 
 		req.on("end", function(){
-			console.log("on end", dataStr);
+			console.log("on end:", dataStr);
 			var parsed = JSON.parse(dataStr);
 			console.log("parsed JSON: ", parsed);
 			var result = workerFn(parsed);
 			console.log("answer: ", result);
-			res.send(answer);
+			res.status(200).send(result);
 		});
 
 	});
